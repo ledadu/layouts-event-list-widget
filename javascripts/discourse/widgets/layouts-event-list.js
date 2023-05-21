@@ -44,20 +44,21 @@ export default layouts.createLayoutsWidget("event-list", {
   didRenderWidget() {
     var self = this;
     const { attrs }    = this;
-    const { category } = attrs;
-    const categoryId   = category?.id || null;
+    const { category, topic } = attrs;
+    const { category_id }     = topic || {};
+    const categoryId   = category?.id || category_id || null;
 
     if (
       category === false
       || categoryId !== this.state.categoryId
     ) {
       const now           = new Date();
-      const categoryParam = category?.id ? `&category_id=${category.id}&include_subcategories=true` : '';
+      const categoryParam = categoryId ? `&category_id=${categoryId}&include_subcategories=true` : '';
       const eventQuery    = `/discourse-post-event/events.json?after=${now.toISOString()}${categoryParam}`;
 
       ajax(eventQuery).then((eventList) => {
         self.state.events = eventList.events;
-        self.state.categoryId = category?.id || null;
+        self.state.categoryId = categoryId;
         self.scheduleRerender();
       });
     }
